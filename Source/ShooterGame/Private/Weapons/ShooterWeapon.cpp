@@ -1034,7 +1034,7 @@ void AShooterWeapon::ImGuiDebug()
 	ImGui::SliderInt("InitialClips",&WeaponConfig.InitialClips,0,1000);
 	ImGui::Text("TimeBetweenShots:%f",WeaponConfig.TimeBetweenShots);
 	ImGui::SliderFloat("TimeBetweenShots",&WeaponConfig.TimeBetweenShots,0,10);
-	ImGui::Text("TimeBetweenShots:%f",WeaponConfig.NoAnimReloadDuration);
+	ImGui::Text("NoAnimReloadDuration:%f",WeaponConfig.NoAnimReloadDuration);
 	ImGui::SliderFloat("NoAnimReloadDuration",&WeaponConfig.NoAnimReloadDuration,0,10);
 	if(HasAuthority())
 	{

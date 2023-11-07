@@ -34,7 +34,7 @@ void AShooterBot::Tick(float DeltaSeconds)
 	FString NameSafe = GetNameSafe(this);
 	WindowId = TCHAR_TO_ANSI(*NameSafe);
 	ImGui::Begin(WindowId,nullptr,ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Enemy bot:%s",*GetNameSafe(this));
+	ImGui::Text("Enemy bot:%s",WindowId);
 	ImGui::Checkbox("Can Debug",&CanDebug);
 	if(!CanDebug)
 	{
