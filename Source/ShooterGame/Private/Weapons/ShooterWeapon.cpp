@@ -350,13 +350,11 @@ void AShooterWeapon::ServerImGuiDebug_Implementation(int32 CurrentAmmo,int32 Cur
 
 void AShooterWeapon::ServerModifiedCurrentAmmo_Implementation(int32 CurrentAmmo)
 {
-	UE_LOG(LogTemp,Warning,TEXT("Ammo rpc called"));
 	LastAmmo = this->CurrentAmmo = CurrentAmmo;
 }
 
 void AShooterWeapon::ServerModifiedCurrentAmmoInsideClip(int32 AmmoInClip)
 {
-	UE_LOG(LogTemp,Warning,TEXT("AmmoInClip rpc called"));
 	LastAmmoInClip = this->CurrentAmmoInClip = AmmoInClip;
 }
 
