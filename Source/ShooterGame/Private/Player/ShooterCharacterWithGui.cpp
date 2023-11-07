@@ -31,5 +31,8 @@ void AShooterCharacterWithGui::Tick(float DeltaSeconds)
 		ImGui::Text("Current Weapon: %s",weaponName);
 		CurrentWeapon->ImGuiDebug();
 	}
+	//如果要修改其他属性（如PlayerState），则同理
+	//ImGui::BulletText("Player State");
+	//AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetController());
 	ImGui::End();
 }
