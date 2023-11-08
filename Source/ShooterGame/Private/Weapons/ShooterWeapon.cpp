@@ -350,11 +350,13 @@ void AShooterWeapon::ServerImGuiDebug_Implementation(int32 CurrentAmmo,int32 Cur
 
 void AShooterWeapon::ServerModifiedCurrentAmmo_Implementation(int32 CurrentAmmo)
 {
+	UE_LOG(LogTemp,Warning,TEXT("CurrentAmmo rpc"));
 	LastAmmo = this->CurrentAmmo = CurrentAmmo;
 }
 
 void AShooterWeapon::ServerModifiedCurrentAmmoInsideClip_Implementation(int32 AmmoInClip)
 {
+	UE_LOG(LogTemp,Warning,TEXT("CurrentAmmoInClip rpc"));
 	LastAmmoInClip = this->CurrentAmmoInClip = AmmoInClip;
 }
 
@@ -944,6 +946,9 @@ void AShooterWeapon::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & O
 	DOREPLIFETIME_CONDITION( AShooterWeapon, CurrentAmmo,		COND_OwnerOnly );
 	DOREPLIFETIME_CONDITION( AShooterWeapon, CurrentAmmoInClip, COND_OwnerOnly );
 
+	DOREPLIFETIME_CONDITION( AShooterWeapon, LastAmmo,		COND_OwnerOnly );
+	DOREPLIFETIME_CONDITION( AShooterWeapon, LastAmmoInClip, COND_OwnerOnly );
+	
 	DOREPLIFETIME_CONDITION( AShooterWeapon, BurstCounter,		COND_SkipOwner );
 	DOREPLIFETIME_CONDITION( AShooterWeapon, bPendingReload,	COND_SkipOwner );
 }

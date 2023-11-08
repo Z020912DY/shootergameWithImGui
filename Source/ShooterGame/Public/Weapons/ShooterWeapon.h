@@ -314,6 +314,7 @@ private:
 	/** weapon mesh: 3rd person view */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	USkeletalMeshComponent* Mesh3P;
+	
 protected:
 
 	/** firing audio (bLoopedFireSound set) */
