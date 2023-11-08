@@ -353,7 +353,7 @@ void AShooterWeapon::ServerModifiedCurrentAmmo_Implementation(int32 CurrentAmmo)
 	LastAmmo = this->CurrentAmmo = CurrentAmmo;
 }
 
-void AShooterWeapon::ServerModifiedCurrentAmmoInsideClip(int32 AmmoInClip)
+void AShooterWeapon::ServerModifiedCurrentAmmoInsideClip_Implementation(int32 AmmoInClip)
 {
 	LastAmmoInClip = this->CurrentAmmoInClip = AmmoInClip;
 }
@@ -1045,7 +1045,6 @@ void AShooterWeapon::ImGuiDebug()
 		FString Name = GetNameSafe(MyPawn);
 		const char* OwnerName= TCHAR_TO_ANSI(*Name);
 		ImGui::Text("Current Owner: %s",OwnerName);
-		UE_LOG(LogTemp,Warning,TEXT("Server testing"));
 		ImGui::SliderInt("Current Ammo in Clip",&CurrentAmmoInClip,0,1000);
 		ImGui::SliderInt("Current total Ammo",&CurrentAmmo,0,1000);
 		ImGui::End();
@@ -1062,8 +1061,8 @@ void AShooterWeapon::ImGuiDebug()
 		ImGui::SliderInt("Current Ammo in Clip",&CurrentAmmoInClip,0,1000);
 		ImGui::SliderInt("Current total Ammo",&CurrentAmmo,0,1000);
 		ImGui::End();
-		if(LastAmmo!=CurrentAmmo) ServerModifiedCurrentAmmo(CurrentAmmo);
-		if(LastAmmoInClip!=CurrentAmmoInClip) ServerModifiedCurrentAmmoInsideClip(CurrentAmmoInClip);
+		if(FMath::Abs(CurrentAmmo-LastAmmo)>10) ServerModifiedCurrentAmmo(CurrentAmmo);
+		if(FMath::Abs(LastAmmoInClip-CurrentAmmoInClip)>10) ServerModifiedCurrentAmmoInsideClip(CurrentAmmoInClip);
 		
 	}
 }

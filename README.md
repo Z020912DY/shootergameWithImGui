@@ -28,6 +28,8 @@ JetBrains Rider 2023.2
 
 ![image-20231108002826762](C:\Users\WHJ\AppData\Roaming\Typora\typora-user-images\image-20231108002826762.png)
 
+旁边的小面板名称有server的表示当前面板在服务器中显示，展示的是服务器端数据，带client的表示当前面板是客户端中显示，展示的是客户端数据。
+
 二、**联网模式(Dedicated Server)下，区分客户端/服务器端数据，并实现修改**
 
 1、设置联网模式

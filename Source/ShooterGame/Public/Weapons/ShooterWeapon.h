@@ -179,11 +179,12 @@ class AShooterWeapon : public AActor
 	UFUNCTION(reliable, client)
 	void ClientStartReload();
 
-	/*在这里写客户端数据修改*/
+	/*客户端数据修改发送rpc*/
 	UFUNCTION(Reliable,Server)
 	void ServerImGuiDebug(int32 CurrentAmmo,int32 CurrentAmmoInClip);
 	UFUNCTION(Reliable,Server)
 	void ServerModifiedCurrentAmmo(int32 CurrentAmmo);
+	UFUNCTION(Reliable,Server)
 	void ServerModifiedCurrentAmmoInsideClip(int32 AmmoInClip);
 	//////////////////////////////////////////////////////////////////////////
 	// Control
