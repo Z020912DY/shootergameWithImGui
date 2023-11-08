@@ -50,7 +50,7 @@ JetBrains Rider 2023.2
 三、其他
 ![image](https://github.com/Z020912DY/shootergameWithImGui/blob/master/4bf0d9e4-9b7f-4c78-91a4-3c4007b6d50a.gif)
 
-对于其他数据，如PlayerState，可以进行同类似的处理，加入GM面板中，实现RunTime对游戏进行调试。
+对于其他数据，如PlayerState，可以进行同类似的处理，加入GM面板中，实现RunTime对游戏进行调试。(gif图的闪烁是录制导致的，本地并没有闪烁)
 
 ## ImGui插件的引入与使用
 
