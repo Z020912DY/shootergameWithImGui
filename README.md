@@ -48,9 +48,9 @@ JetBrains Rider 2023.2
 但是**客户端是无法修改simulator role的actor的**，修改这类actor的请求会被丢弃。只能修改本地控制的actor。而服务器端可以修改任何角色，因为所有角色都是在服务器端生成的，它拥有权限。
 
 三、其他
+![image](https://github.com/Z020912DY/shootergameWithImGui/blob/master/4bf0d9e4-9b7f-4c78-91a4-3c4007b6d50a.gif)
 
-
-对于其他数据，如PlayerState，可以进行同类似的处理，加入GM面板中，实现RunTime对游戏进行调试。
+对于其他数据，如PlayerState，可以进行同类似的处理，加入GM面板中，实现RunTime对游戏进行调试。(gif图的闪烁是录制导致的，本地并没有闪烁)
 
 ## ImGui插件的引入与使用
 
