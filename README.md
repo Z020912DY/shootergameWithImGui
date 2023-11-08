@@ -73,3 +73,153 @@ Unreal Dear Imgui插件地址https://github.com/segross/UnrealImGui
 `FString NameSafe = GetNameSafe(this);
 WindowId = TCHAR_TO_ANSI(*NameSafe);`
 
+## 实现思路
+
+1、阅读示例项目源码，找一些值得修改的属性。本项目修改的属性集中在ShooterCharacter和ShooterWeapon中。
+
+2、继承ShooterCharacter，在其基础上扩展使用ImGui的能力，重写tick函数，每个tick使用ImGUI进行调试。基类提供了WindowId属性，使得每个角色都有自己独立的调试窗口
+
+`
+
+```c++
+//AShooterCharacter类
+/*whether to open imgui debug*/
+UPROPERTY(EditDefaultsOnly,Category=ImGUI)
+bool CanDebug = false;
+const char* WindowId;
+```
+
+```c++
+//扩展类
+UCLASS()
+class SHOOTERGAME_API AShooterCharacterWithGui : public AShooterCharacter
+{
+    GENERATED_BODY()
+protected:
+    virtual void Tick(float DeltaSeconds) override;
+};
+```
+
+`
+
+`
+
+```c++
+//tick函数
+void AShooterCharacterWithGui::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    FString NameSafe = GetNameSafe(this);
+    WindowId = TCHAR_TO_ANSI(*NameSafe);
+    ImGui::Begin(WindowId,nullptr,ImGuiWindowFlags_AlwaysAutoResize);
+    //提供是否debug选择
+    ImGui::Checkbox("Can Debug",&CanDebug);
+    if(!CanDebug) {
+       ImGui::End();
+       return;
+    }
+	//当前角色状态的调试
+    ImGui::BulletText("Status");
+    ImGui::Text("Max Health: %d",GetMaxHealth());
+    ImGui::SliderFloat("current health",&Health,0.f,1000.f);
+    ImGui::SliderFloat("Max Targeting Movement Speed",&TargetingSpeedModifier,0.f,1000.f);
+    ImGui::SliderFloat("Max Running Movement Speed",&RunningSpeedModifier,0.f,1000.f);
+    ImGui::SliderFloat("Low Health Percentage",&LowHealthPercentage,0.f,1.f);
+    //调用当前武器的ImGUI调试功能函数
+    if(CurrentWeapon)
+    {
+       ImGui::BulletText("Weapon Properties");
+       FString NameSafe2 = GetNameSafe(CurrentWeapon);
+       const char* weaponName= TCHAR_TO_ANSI(*NameSafe2);
+       ImGui::Text("Current Weapon: %s",weaponName);
+       CurrentWeapon->ImGuiDebug();
+    }
+    //如果要修改其他属性（如PlayerState），则同理
+    //ImGui::BulletText("Player State");
+    //AShooterPlayerController* ShooterPlayerController = 	//Cast<AShooterPlayerController>(GetController());
+    ImGui::End();
+}
+```
+
+`
+
+3、ShooterWeapon作为基类提供ImGuiDebug()的虚函数
+
+```
+virtual void ImGuiDebug();
+```
+
+基类的debug负责调试武器的通用属性，如子弹数目、射击时间间隔等
+
+各种派生类可以重写基类的ImGuiDebug(),进一步扩展自己的特别的属性调试，如
+
+InstantWeapon的子弹散射属性等
+
+```c++
+void AShooterWeapon_Instant::ImGuiDebug()
+{
+    Super::ImGuiDebug();
+    if(!MyPawn||!MyPawn->Candebug()||MyPawn->GetWeapon()!=this) return;
+    ImGui::Text("Weapon Spread:%f",InstantConfig.WeaponSpread);
+    ImGui::SliderFloat("WeaponSpread",&InstantConfig.WeaponSpread,0.f,100.f);
+    ImGui::Text("Weapon Hit Damage:%f",InstantConfig.HitDamage);
+    ImGui::SliderInt("Hit Damage",&InstantConfig.HitDamage,0.f,1000.f);
+}
+```
+
+4、检查网络复制的属性有哪些，对这些属性做权限控制，区分客户端和服务器端。本项目只针对修改了CurrentAmmoInClip、CurrentAmmo两个属性。
+
+```c++
+if(HasAuthority())
+{
+    FString NameSafe = GetNameSafe(this);
+    NameSafe.Append("Server");
+    const char* ServerName = TCHAR_TO_ANSI(*NameSafe);
+    ImGui::Begin(ServerName,nullptr,ImGuiWindowFlags_AlwaysAutoResize);
+    FString Name = GetNameSafe(MyPawn);
+    const char* OwnerName= TCHAR_TO_ANSI(*Name);
+    ImGui::Text("Current Owner: %s",OwnerName);
+    ImGui::SliderInt("Current Ammo in Clip",&CurrentAmmoInClip,0,1000);
+    ImGui::SliderInt("Current total Ammo",&CurrentAmmo,0,1000);
+    ImGui::End();
+}else
+{
+    FString NameSafe = GetNameSafe(this);
+    NameSafe.Append("Client");
+    const char* ClientName = TCHAR_TO_ANSI(*NameSafe);
+    ImGui::Begin(ClientName,nullptr,ImGuiWindowFlags_AlwaysAutoResize);
+    FString Name = GetNameSafe(MyPawn);
+    const char* OwnerName= TCHAR_TO_ANSI(*Name);
+    ImGui::Text("Current Owner: %s",OwnerName);
+    UE_LOG(LogTemp,Warning,TEXT("Client testing"));
+    ImGui::SliderInt("Current Ammo in Clip",&CurrentAmmoInClip,0,1000);
+    ImGui::SliderInt("Current total Ammo",&CurrentAmmo,0,1000);
+    ImGui::End();
+    if(FMath::Abs(CurrentAmmo-LastAmmo)>10) 				 		ServerModifiedCurrentAmmo(CurrentAmmo);
+    if(FMath::Abs(LastAmmoInClip-CurrentAmmoInClip)>10) 		 ServerModifiedCurrentAmmoInsideClip(CurrentAmmoInClip);
+}
+```
+
+对客户端，为了使得在客户端上的调试也能实现修改，发送带参数的rpc使得服务器同步了客户端的数据。同时，为了减少rpc次数，添加LastAmmo、LastAmmoInClip属性，在小幅度内的改变不会发送rpc。
+
+```c++
+/*客户端数据修改发送rpc*/
+UFUNCTION(Reliable,Server)
+void ServerImGuiDebug(int32 CurrentAmmo,int32 CurrentAmmoInClip);
+UFUNCTION(Reliable,Server)
+void ServerModifiedCurrentAmmo(int32 CurrentAmmo);
+UFUNCTION(Reliable,Server)
+void ServerModifiedCurrentAmmoInsideClip(int32 AmmoInClip);
+```
+
+```c++
+void AShooterWeapon::ServerModifiedCurrentAmmo_Implementation(int32 CurrentAmmo)
+{
+    LastAmmo = this->CurrentAmmo = CurrentAmmo;
+}
+
+void AShooterWeapon::ServerModifiedCurrentAmmoInsideClip_Implementation(int32 AmmoInClip)
+{
+    LastAmmoInClip = this->CurrentAmmoInClip = AmmoInClip;
+}
+```
